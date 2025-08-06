@@ -17,6 +17,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:food_delivery_app/screens/client/order_tracking_screen.dart';
 import 'package:food_delivery_app/screens/client/client_home_screen.dart'; // <<< ADD THIS LINE
 import 'package:food_delivery_app/screens/profile/profile_screen.dart';
+import 'package:food_delivery_app/screens/client/client_auth_screen.dart';
 
 
 class CheckoutScreen extends StatefulWidget {
