@@ -34,17 +34,44 @@ class _RestaurantDashboardState extends State<RestaurantDashboard> {
   Future<void> _fetchRestaurantData() async {
     setState(() { _isLoading = true; });
     try {
-      final userId = supabase.auth.currentUser!.id;
-      final restaurantData = await supabase.from('restaurants').select().eq('owner_id', userId).single();
+      final userId = supabase.auth.currentUser?.id;
+      if (userId == null) {
+        throw Exception('المستخدم غير مسجل الدخول');
+      }
+
+      print('Fetching restaurant for user ID: $userId'); // Debug log
+      
+      final restaurantData = await supabase
+          .from('restaurants')
+          .select()
+          .eq('owner_id', userId)
+          .maybeSingle(); // Use maybeSingle instead of single
+      
+      if (restaurantData == null) {
+        throw Exception('لم يتم العثور على مطعم مرتبط بهذا الحساب');
+      }
+
+      print('Restaurant data: $restaurantData'); // Debug log
+      
       final restaurant = Restaurant.fromMap(restaurantData);
-      final dishesData = await supabase.from('dishes').select().eq('restaurant_id', restaurant.id);
+      final dishesData = await supabase
+          .from('dishes')
+          .select()
+          .eq('restaurant_id', restaurant.id);
+      
+      print('Dishes data: $dishesData'); // Debug log
+      
       final dishes = dishesData.map((map) => Dish.fromMap(map)).toList();
-      setState(() {
-        _restaurant = restaurant;
-        _dishes = dishes;
-        _isLoading = false;
-      });
+      
+      if (mounted) {
+        setState(() {
+          _restaurant = restaurant;
+          _dishes = dishes;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
+      print('Error fetching restaurant data: $e'); // Debug log
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('خطأ في جلب بيانات المطعم: $e'),

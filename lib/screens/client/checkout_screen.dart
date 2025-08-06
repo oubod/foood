@@ -140,9 +140,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   // The main function to place the order
   Future<void> _placeOrder() async {
+    // Validation checks
     if (!_formKey.currentState!.validate()) {
       return; // If form is not valid, do nothing
     }
+    
+    final cartService = Provider.of<CartService>(context, listen: false);
+    if (cartService.items.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('السلة فارغة'),
+        backgroundColor: Colors.red,
+      ));
+      return;
+    }
+    
     if (_paymentMethod == PaymentMethod.electronic && _proofImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('الرجاء تحميل إثبات الدفع'),
@@ -151,10 +162,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       return;
     }
 
+    if (_locationController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('الرجاء إدخال عنوان التوصيل'),
+        backgroundColor: Colors.red,
+      ));
+      return;
+    }
+
     setState(() { _isLoading = true; });
 
     try {
-      final cartService = Provider.of<CartService>(context, listen: false);
       String? proofUrl;
 
       // 1. Upload payment proof if electronic payment is chosen
@@ -183,13 +201,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ? {'lat': _currentPosition!.latitude, 'lng': _currentPosition!.longitude, 'address': _locationController.text}
         : {'address': _locationController.text};
 
-      // 4. Call the updated PostgreSQL function
+      // 4. Call the PostgreSQL function with correct parameters
       final newOrderId = await supabase.rpc('create_order', params: {
         'restaurant_id': cartService.items.first.dish.restaurantId,
         'total_price': cartService.totalPrice,
         'payment_method': _paymentMethod == PaymentMethod.electronic ? 'electronic' : 'cash',
-        'payment_proof_url': proofUrl,
         'order_items': orderItems,
+        'payment_proof_url': proofUrl,
         'customer_location': locationData,
       });
 

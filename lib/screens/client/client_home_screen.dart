@@ -92,22 +92,41 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
         if (mounted) setState(() => _restaurants = nearbyRestaurants);
 
       } else {
-        final box = await Hive.openBox<Restaurant>('restaurants');
-        if (box.values.isNotEmpty) {
-          if(mounted) setState(() => _restaurants = box.values.toList());
+        // First try to get from cache for instant display
+        final cachedData = CacheService.getCachedRestaurants();
+        if (cachedData != null && mounted) {
+          final cachedRestaurants = cachedData.map<Restaurant>((map) => Restaurant.fromMap(map)).toList();
+          setState(() {
+            _restaurants = cachedRestaurants;
+            _isLoading = false;
+          });
         }
-        final data = await supabase.from('restaurants').select().order('created_at');
-        final freshRestaurants = data.map((map) => Restaurant.fromMap(map)).toList();
-        
-        // Cache the fresh data
-        await CacheService.cacheRestaurants(data);
-        
-        await box.clear();
-        await box.putAll(Map.fromEntries(freshRestaurants.map((r) => MapEntry(r.id, r))));
-        
-        // Only update if not sorting by nearby, to avoid overwriting results
-        if (mounted && !_isSortByNearby) {
-          setState(() => _restaurants = freshRestaurants);
+
+        // Then fetch fresh data in background
+        try {
+          final data = await supabase
+              .from('restaurants')
+              .select()
+              .order('created_at')
+              .limit(20); // Limit to improve performance
+          
+          final freshRestaurants = data.map((map) => Restaurant.fromMap(map)).toList();
+          
+          // Cache the fresh data
+          await CacheService.cacheRestaurants(data);
+          
+          // Update Hive cache in background
+          final box = await Hive.openBox<Restaurant>('restaurants');
+          await box.clear();
+          await box.putAll(Map.fromEntries(freshRestaurants.map((r) => MapEntry(r.id, r))));
+          
+          // Only update if not sorting by nearby, to avoid overwriting results
+          if (mounted && !_isSortByNearby) {
+            setState(() => _restaurants = freshRestaurants);
+          }
+        } catch (e) {
+          // If network fails, stick with cached data
+          print('Network error, using cached data: $e');
         }
       }
     } catch (e) {
