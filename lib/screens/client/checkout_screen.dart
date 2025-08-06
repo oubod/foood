@@ -5,6 +5,7 @@ import 'package:flutter/services.dart'; // Add this import
 import 'package:food_delivery_app/main.dart';
 import 'package:food_delivery_app/services/cart_service.dart';
 import 'package:food_delivery_app/services/order_service.dart'; // <<< ADD THIS LINE
+import 'package:food_delivery_app/screens/client/client_auth_screen.dart';
 import 'package:food_delivery_app/theme.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
