@@ -152,8 +152,8 @@ class _OrderManagementTabState extends State<OrderManagementTab> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('إدارة الطلبات'),
-        backgroundColor: AppConstants.primaryColor,
+        title: const Text('DEBUG MODE - IS THIS NEW CODE?'),
+        backgroundColor: Colors.red, // Make it even more obvious
         foregroundColor: Colors.white,
         actions: [
           IconButton(
