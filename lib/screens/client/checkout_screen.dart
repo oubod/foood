@@ -1,21 +1,20 @@
 // lib/screens/client/checkout_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Add this import
-import 'package:food_delivery_app/main.dart';
-import 'package:food_delivery_app/services/cart_service.dart';
-import 'package:food_delivery_app/services/order_service.dart'; // <<< ADD THIS LINE
-import 'package:food_delivery_app/theme.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:food_delivery_app/services/auth_service.dart';
-import 'package:food_delivery_app/models/user_model.dart';
-import 'package:food_delivery_app/screens/auth/login_screen.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-// Import the tracking screen we will create next
+
+import 'package:food_delivery_app/main.dart';
+import 'package:food_delivery_app/theme.dart';
+import 'package:food_delivery_app/models/user_model.dart';
+import 'package:food_delivery_app/services/auth_service.dart';
+import 'package:food_delivery_app/services/cart_service.dart';
+import 'package:food_delivery_app/services/order_service.dart';
+import 'package:food_delivery_app/screens/client/client_auth_screen.dart';
 import 'package:food_delivery_app/screens/client/order_tracking_screen.dart';
-import 'package:food_delivery_app/screens/client/client_home_screen.dart'; // <<< ADD THIS LINE
 import 'package:food_delivery_app/screens/profile/profile_screen.dart';
 import 'package:food_delivery_app/screens/client/client_auth_screen.dart';
 
