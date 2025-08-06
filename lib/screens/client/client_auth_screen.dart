@@ -43,20 +43,19 @@ class _ClientAuthScreenState extends State<ClientAuthScreen> {
           password: _passwordController.text,
         );
       } else {
+        // The role will be defaulted to 'customer' by the backend trigger.
         await authService.signUp(
           email: _emailController.text.trim(),
           password: _passwordController.text,
           fullName: _nameController.text.trim(),
           phone: _phoneController.text.trim(),
-          role: 'customer',
         );
       }
 
+      // Navigation is now handled by the auth listener in main.dart
+      // to ensure consistent navigation logic across the app.
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const ClientHomeScreen()),
-        );
+        // No navigation needed here.
       }
     } catch (e) {
       if (mounted) {
