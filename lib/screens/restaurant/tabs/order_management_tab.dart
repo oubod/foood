@@ -44,19 +44,26 @@ class _OrderManagementTabState extends State<OrderManagementTab> {
 
       final restaurantId = restaurantResponse['id'];
 
-      // Get orders for this restaurant
-      final ordersResponse = await _supabase
-          .from('orders')
-          .select('''
-            *,
-            order_items(*, dishes(name, price)),
-            profiles:customer_id(full_name, phone)
-          ''')
-          .eq('restaurant_id', restaurantId)
-          .order('created_at', ascending: false);
+      // Get orders for this restaurant using the new RPC
+      final ordersResponse = await _supabase.rpc(
+        'get_restaurant_orders',
+        params: {'p_restaurant_id': restaurantId},
+      );
+
+      // The RPC returns a single JSON object (which is a JSON array string)
+      // or null if no orders are found.
+      if (ordersResponse == null) {
+        setState(() {
+          _orders = [];
+          _isLoading = false;
+        });
+        return;
+      }
 
       setState(() {
-        _orders = List<Map<String, dynamic>>.from(ordersResponse);
+        // The result from rpc is dynamic, but we know it's a List<Map<String, dynamic>>
+        // because our RPC returns json_agg.
+        _orders = List<Map<String, dynamic>>.from(ordersResponse as List);
         _isLoading = false;
       });
     } catch (e) {
