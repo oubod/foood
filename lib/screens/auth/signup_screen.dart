@@ -1,6 +1,8 @@
 // lib/screens/auth/signup_screen.dart
 import 'package:flutter/material.dart';
-import 'package:food_delivery_app/main.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:food_delivery_app/services/auth_service.dart';
 import 'package:food_delivery_app/theme.dart';
 import 'package:food_delivery_app/screens/auth/login_screen.dart';
 
@@ -34,18 +36,16 @@ class _SignupScreenState extends State<SignupScreen> {
     });
 
     try {
-      // Sign up the user with Supabase Auth
-      final response = await supabase.auth.signUp(
+      // Use the AuthService to sign up.
+      final userProfile = await Provider.of<AuthService>(context, listen: false).signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
-        data: {
-          'full_name': _fullNameController.text.trim(),
-          'phone': _phoneController.text.trim(),
-          'role': _selectedRole,
-        },
+        fullName: _fullNameController.text.trim(),
+        phone: _phoneController.text.trim(),
+        role: _selectedRole,
       );
 
-      if (response.user != null) {
+      if (userProfile != null) {
         // User created successfully
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

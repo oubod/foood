@@ -89,7 +89,7 @@ class AuthService extends ChangeNotifier {
     required String password,
     required String fullName,
     required String phone,
-    required String role,
+    String? role, // Role is now optional
   }) async {
     _setLoading(true);
     
@@ -100,7 +100,7 @@ class AuthService extends ChangeNotifier {
         data: {
           'full_name': fullName,
           'phone': phone,
-          'role': role,
+          if (role != null) 'role': role,
         },
       );
 

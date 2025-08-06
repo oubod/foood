@@ -39,6 +39,16 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
+# Environment variables
+#
+# Ignore local environment variables.
+# For more information, see:
+# https://github.com/flutter/flutter/issues/5538
+.env
+
+# Do not ignore .env.example, which is meant to be tracked by VCS.
+# !.env.example
+
 # Android Studio will place build artifacts here
 /android/app/debug
 /android/app/profile
