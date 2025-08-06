@@ -50,7 +50,7 @@ class _OrderManagementTabState extends State<OrderManagementTab> {
           .select('''
             *,
             order_items(*, dishes(name, price)),
-            profiles(full_name, phone)
+            profiles:customer_id(full_name, phone)
           ''')
           .eq('restaurant_id', restaurantId)
           .order('created_at', ascending: false);
