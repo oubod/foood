@@ -36,10 +36,10 @@ class AppTheme {
       // Performance optimizations
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       visualDensity: VisualDensity.compact,
-      cardTheme: CardThemeData(
+      cardTheme: const CardTheme(
         elevation: 0, // We use custom shadows via Container
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.0), // borderRadius.large
+          borderRadius: BorderRadius.all(Radius.circular(16.0)), // borderRadius.large
         ),
         margin: EdgeInsets.zero,
       ),
