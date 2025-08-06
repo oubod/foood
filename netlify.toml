@@ -1,10 +1,17 @@
+# netlify.toml
+
 [build]
   publish = "build/web"
-  command = "flutter pub get && flutter build web --release --web-renderer canvaskit"
+  command = """
+    curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.0-stable.tar.xz \
+    && tar xf flutter_linux_3.24.0-stable.tar.xz \
+    && export PATH="$PATH:$(pwd)/flutter/bin" \
+    && flutter pub get \
+    && flutter build web --release --web-renderer canvaskit
+  """
 
 [build.environment]
-  FLUTTER_VERSION = "3.24.0"
-  NODE_VERSION = "20.18.3"
+  NODE_VERSION = "20"
 
 [[redirects]]
   from = "/*"
@@ -12,7 +19,19 @@
   status = 200
 
 [context.deploy-preview]
-  command = "flutter pub get && flutter build web --release --web-renderer canvaskit"
+  command = """
+    curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.0-stable.tar.xz \
+    && tar xf flutter_linux_3.24.0-stable.tar.xz \
+    && export PATH="$PATH:$(pwd)/flutter/bin" \
+    && flutter pub get \
+    && flutter build web --release --web-renderer canvaskit
+  """
 
 [context.branch-deploy]
-  command = "flutter pub get && flutter build web --release --web-renderer canvaskit"
+  command = """
+    curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.0-stable.tar.xz \
+    && tar xf flutter_linux_3.24.0-stable.tar.xz \
+    && export PATH="$PATH:$(pwd)/flutter/bin" \
+    && flutter pub get \
+    && flutter build web --release --web-renderer canvaskit
+  """
