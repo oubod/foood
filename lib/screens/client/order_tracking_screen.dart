@@ -53,7 +53,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
       // Then get restaurant info
       final restaurantData = await _supabase
           .from('restaurants')
-          .select('name, phone')
+          .select('name, owner:profiles(phone)')
           .eq('id', response['restaurant_id'])
           .maybeSingle();
 
@@ -395,7 +395,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
               children: [
                 const Icon(Icons.phone),
                 const SizedBox(width: AppConstants.s),
-                Text(restaurant['phone'] ?? 'غير متوفر'),
+                Text(restaurant['owner']?['phone'] ?? 'غير متوفر'),
               ],
             ),
           ],
