@@ -202,7 +202,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         : {'address': _locationController.text};
 
       // 4. Call the PostgreSQL function with correct parameters
-      final newOrderId = await supabase.rpc('create_order', params: {
+      final result = await supabase.rpc('create_order', params: {
         'restaurant_id': cartService.items.first.dish.restaurantId,
         'total_price': cartService.totalPrice,
         'payment_method': _paymentMethod == PaymentMethod.electronic ? 'electronic' : 'cash',
@@ -210,6 +210,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         'payment_proof_url': proofUrl,
         'customer_location': locationData,
       });
+
+      final newOrderId = result.toString(); // Ensure it's a string
+      print('Created order with ID: $newOrderId'); // Debug log
 
       // Add haptic feedback for successful order placement
       HapticFeedback.heavyImpact();

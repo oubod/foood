@@ -31,23 +31,81 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
 
   Future<void> _loadOrder() async {
     try {
+      print('Loading order with ID: ${widget.orderId}'); // Debug log
+      
+      // First get the basic order info
       final response = await _supabase
           .from('orders')
-          .select('''
-            *,
-            restaurants(name, phone),
-            order_items(*, dishes(name, price))
-          ''')
+          .select('*')
           .eq('id', widget.orderId)
-          .single();
+          .maybeSingle();
+
+      if (response == null) {
+        setState(() {
+          _error = 'لم يتم العثور على الطلب';
+          _isLoading = false;
+        });
+        return;
+      }
+
+      print('Order data: $response'); // Debug log
+
+      // Then get restaurant info
+      final restaurantData = await _supabase
+          .from('restaurants')
+          .select('name, phone')
+          .eq('id', response['restaurant_id'])
+          .maybeSingle();
+
+      // Get order items - try with dish info first, fallback if needed
+      List<Map<String, dynamic>> orderItemsData;
+      try {
+        orderItemsData = await _supabase
+            .from('order_items')
+            .select('*, dishes(name, price)')
+            .eq('order_id', widget.orderId);
+      } catch (e) {
+        print('Failed to get order items with dish info, trying without: $e');
+        // Fallback: get order items without dish info
+        orderItemsData = await _supabase
+            .from('order_items')
+            .select('*')
+            .eq('order_id', widget.orderId);
+        
+        // Manually fetch dish info for each item
+        for (var item in orderItemsData) {
+          try {
+            final dishData = await _supabase
+                .from('dishes')
+                .select('name, price')
+                .eq('id', item['dish_id'])
+                .maybeSingle();
+            item['dishes'] = dishData;
+          } catch (dishError) {
+            print('Failed to get dish info for ${item['dish_id']}: $dishError');
+            item['dishes'] = {'name': 'منتج غير متوفر', 'price': 0};
+          }
+        }
+      }
+
+      print('Restaurant data: $restaurantData'); // Debug log
+      print('Order items data: $orderItemsData'); // Debug log
+
+      // Combine all data
+      final completeOrder = {
+        ...response,
+        'restaurants': restaurantData,
+        'order_items': orderItemsData,
+      };
 
       setState(() {
-        _order = response;
+        _order = completeOrder;
         _isLoading = false;
       });
     } catch (e) {
+      print('Error loading order: $e'); // Debug log
       setState(() {
-        _error = 'فشل في تحميل تفاصيل الطلب';
+        _error = 'فشل في تحميل تفاصيل الطلب: $e';
         _isLoading = false;
       });
     }
