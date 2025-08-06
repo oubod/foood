@@ -1,0 +1,17 @@
+[build]
+  publish = "build/web"
+  command = "flutter pub get && flutter build web --release --web-renderer canvaskit"
+
+[build.environment]
+  FLUTTER_VERSION = "3.24.0"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[context.deploy-preview]
+  command = "flutter pub get && flutter build web --release --web-renderer canvaskit"
+
+[context.branch-deploy]
+  command = "flutter pub get && flutter build web --release --web-renderer canvaskit"
