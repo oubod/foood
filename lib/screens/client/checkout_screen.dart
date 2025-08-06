@@ -13,7 +13,7 @@ import 'package:food_delivery_app/models/user_model.dart';
 import 'package:food_delivery_app/services/auth_service.dart';
 import 'package:food_delivery_app/services/cart_service.dart';
 import 'package:food_delivery_app/services/order_service.dart';
-import 'package:food_delivery_app/screens/client/client_auth_screen_temp.dart';
+import 'package:food_delivery_app/screens/client/client_auth_screen.dart';
 import 'package:food_delivery_app/screens/client/order_tracking_screen.dart';
 import 'package:food_delivery_app/screens/profile/profile_screen.dart';
 
@@ -70,7 +70,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   Navigator.of(context).pop(); // Pop the dialog
                   // Replace the checkout screen with the auth screen
                   Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => const ClientAuthScreenTemp(),
+                    builder: (context) => const ClientAuthScreen(),
                   ));
                 },
                 child: const Text('تسجيل الدخول / إنشاء حساب'),
