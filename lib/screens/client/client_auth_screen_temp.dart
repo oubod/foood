@@ -4,14 +4,14 @@ import 'package:food_delivery_app/services/auth_service.dart';
 import 'package:food_delivery_app/screens/client/client_home_screen.dart';
 import 'package:food_delivery_app/theme.dart';
 
-class ClientAuthScreen extends StatefulWidget {
-  const ClientAuthScreen({Key? key}) : super(key: key);
+class ClientAuthScreenTemp extends StatefulWidget {
+  const ClientAuthScreenTemp({Key? key}) : super(key: key);
 
   @override
-  State<ClientAuthScreen> createState() => _ClientAuthScreenState();
+  State<ClientAuthScreenTemp> createState() => _ClientAuthScreenState();
 }
 
-class _ClientAuthScreenState extends State<ClientAuthScreen> {
+class _ClientAuthScreenState extends State<ClientAuthScreenTemp> {
   bool _isLogin = true;
   bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
