@@ -30,7 +30,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
 
     final response = await supabase
         .from('orders')
-        .select('*, restaurants(name, image_url), order_items(*, dishes(*))')
+        .select('*, restaurants(*), order_items(*, dishes(*))')
         .eq('customer_id', userId)
         .order('created_at', ascending: false);
 
