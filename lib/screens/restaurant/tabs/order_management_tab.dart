@@ -44,19 +44,26 @@ class _OrderManagementTabState extends State<OrderManagementTab> {
 
       final restaurantId = restaurantResponse['id'];
 
-      // Get orders for this restaurant
-      final ordersResponse = await _supabase
-          .from('orders')
-          .select('''
-            *,
-            order_items(*, dishes(name, price)),
-            profiles(full_name, phone)
-          ''')
-          .eq('restaurant_id', restaurantId)
-          .order('created_at', ascending: false);
+      // Get orders for this restaurant using the new RPC
+      final ordersResponse = await _supabase.rpc(
+        'get_restaurant_orders',
+        params: {'p_restaurant_id': restaurantId},
+      );
+
+      // The RPC returns a single JSON object (which is a JSON array string)
+      // or null if no orders are found.
+      if (ordersResponse == null) {
+        setState(() {
+          _orders = [];
+          _isLoading = false;
+        });
+        return;
+      }
 
       setState(() {
-        _orders = List<Map<String, dynamic>>.from(ordersResponse);
+        // The result from rpc is dynamic, but we know it's a List<Map<String, dynamic>>
+        // because our RPC returns json_agg.
+        _orders = List<Map<String, dynamic>>.from(ordersResponse as List);
         _isLoading = false;
       });
     } catch (e) {
@@ -102,6 +109,38 @@ class _OrderManagementTabState extends State<OrderManagementTab> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('فشل في تحديث الطلب: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _confirmOrderPayment(String orderId) async {
+    try {
+      final result = await _supabase.rpc(
+        'confirm_order',
+        params: {'p_order_id': orderId},
+      );
+
+      if (result == true) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('تم تأكيد الطلب بنجاح.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          _loadOrders(); // Refresh the list
+        }
+      } else {
+        throw Exception('فشل في تأكيد الطلب');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('خطأ: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -306,7 +345,7 @@ class _OrderManagementTabState extends State<OrderManagementTab> {
       children: [
         if (status == 'pending_payment') ...[
           ElevatedButton(
-            onPressed: () => _updateOrderStatus(order['id'], 'preparing'),
+            onPressed: () => _confirmOrderPayment(order['id']),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
             child: const Text('قبول'),
           ),

@@ -1,22 +1,22 @@
 // lib/screens/client/checkout_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Add this import
-import 'package:food_delivery_app/main.dart';
-import 'package:food_delivery_app/services/cart_service.dart';
-import 'package:food_delivery_app/services/order_service.dart'; // <<< ADD THIS LINE
-import 'package:food_delivery_app/theme.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:food_delivery_app/services/auth_service.dart';
-import 'package:food_delivery_app/models/user_model.dart';
-import 'package:food_delivery_app/screens/auth/login_screen.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-// Import the tracking screen we will create next
+
+import 'package:food_delivery_app/main.dart';
+import 'package:food_delivery_app/theme.dart';
+import 'package:food_delivery_app/models/user_model.dart';
+import 'package:food_delivery_app/services/auth_service.dart';
+import 'package:food_delivery_app/services/cart_service.dart';
+import 'package:food_delivery_app/services/order_service.dart';
+import 'package:food_delivery_app/screens/client/client_auth_screen.dart';
 import 'package:food_delivery_app/screens/client/order_tracking_screen.dart';
-import 'package:food_delivery_app/screens/client/client_home_screen.dart'; // <<< ADD THIS LINE
 import 'package:food_delivery_app/screens/profile/profile_screen.dart';
+import 'package:food_delivery_app/screens/client/client_auth_screen.dart';
 
 
 class CheckoutScreen extends StatefulWidget {
@@ -46,10 +46,40 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Future<void> _checkAuthAndLoadProfile() async {
     final authService = Provider.of<AuthService>(context, listen: false);
-    
+
     if (!authService.isAuthenticated || authService.currentUser == null) {
-      // Create guest user for quick checkout
-      await _createGuestUser();
+      // If user is not logged in, show a dialog and navigate them to login.
+      // Using addPostFrameCallback to safely show a dialog from didChangeDependencies.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: const Text('تسجيل الدخول مطلوب'),
+            content: const Text('يجب عليك تسجيل الدخول أو إنشاء حساب للمتابعة.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  // Pop the dialog and the checkout screen to go back
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                },
+                child: const Text('إلغاء'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Pop the dialog
+                  // Replace the checkout screen with the auth screen
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => const ClientAuthScreen(),
+                  ));
+                },
+                child: const Text('تسجيل الدخول / إنشاء حساب'),
+              ),
+            ],
+          ),
+        );
+      });
     } else {
       setState(() {
         _userProfile = authService.currentUser;
@@ -57,74 +87,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
-  Future<void> _createGuestUser() async {
-    try {
-      // Create guest profile for current session
-      setState(() {
-        _userProfile = UserProfile(
-          id: 'guest_${DateTime.now().millisecondsSinceEpoch}',
-          fullName: 'ضيف',
-          email: 'guest@app.com',
-          role: 'customer',
-        );
-      });
-    } catch (e) {
-      _showGuestForm();
-    }
-  }
-
-  void _showGuestForm() {
-    final nameController = TextEditingController();
-    final phoneController = TextEditingController();
-    
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: const Text('معلومات التواصل'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'الاسم',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: phoneController,
-              decoration: const InputDecoration(
-                labelText: 'رقم الهاتف',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.phone,
-            ),
-          ],
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              if (nameController.text.isNotEmpty && phoneController.text.isNotEmpty) {
-                setState(() {
-                  _userProfile = UserProfile(
-                    id: 'guest_${DateTime.now().millisecondsSinceEpoch}',
-                    fullName: nameController.text,
-                    phone: phoneController.text,
-                    email: 'guest@app.com',
-                    role: 'customer',
-                  );
-                });
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('متابعة'),
-          ),
-        ],
-      ),
-    );
-  }
 
 
 

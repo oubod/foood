@@ -2,9 +2,10 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:food_delivery_app/models/dish_model.dart';
 import 'package:food_delivery_app/models/restaurant_model.dart';
-import 'package:food_delivery_app/screens/admin/admin_dashboard.dart'; // CORRECT IMPORT
+import 'package:food_delivery_app/screens/admin/admin_dashboard.dart';
 import 'package:food_delivery_app/screens/restaurant/restaurant_dashboard.dart';
 import 'package:food_delivery_app/screens/role_selection_screen.dart';
 import 'package:food_delivery_app/screens/client/client_home_screen.dart';
@@ -24,6 +25,9 @@ import 'theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
+
   // Initialize cache first for offline support
   await CacheService.init();
   
@@ -32,8 +36,8 @@ Future<void> main() async {
   Hive.registerAdapter(DishAdapter());
 
   await Supabase.initialize(
-    url: 'https://opusisnfqbkiaqljojmn.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wdXNpc25mcWJraWFxbGpvam1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzNDY5NzksImV4cCI6MjA2OTkyMjk3OX0.S3P_DavkKZ5fmK4PcvntEVBieVwoTQEV6FLSN-vv73U',
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
   
   runApp(const FoodApp());

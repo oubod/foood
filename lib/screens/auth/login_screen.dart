@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:food_delivery_app/main.dart'; // To get the global supabase client
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:food_delivery_app/services/auth_service.dart';
 import 'package:food_delivery_app/theme.dart';
 import 'package:food_delivery_app/screens/auth/signup_screen.dart';
 import 'package:food_delivery_app/screens/auth/forgot_password_screen.dart';
@@ -29,12 +31,12 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      // Attempt to sign in with Supabase Auth.
-      await supabase.auth.signInWithPassword(
+      // Use the AuthService to sign in.
+      await Provider.of<AuthService>(context, listen: false).signIn(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      // After a successful login, the listener in splash_screen.dart will
+      // After a successful login, the listener in main.dart will
       // automatically handle navigation, so we don't need to navigate here.
 
     } catch (e) {
