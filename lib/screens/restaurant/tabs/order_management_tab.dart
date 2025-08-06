@@ -109,6 +109,38 @@ class _OrderManagementTabState extends State<OrderManagementTab> {
     }
   }
 
+  Future<void> _confirmOrderPayment(String orderId) async {
+    try {
+      final result = await _supabase.rpc(
+        'confirm_order',
+        params: {'p_order_id': orderId},
+      );
+
+      if (result == true) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('تم تأكيد الطلب بنجاح.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          _loadOrders(); // Refresh the list
+        }
+      } else {
+        throw Exception('فشل في تأكيد الطلب');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('خطأ: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -306,7 +338,7 @@ class _OrderManagementTabState extends State<OrderManagementTab> {
       children: [
         if (status == 'pending_payment') ...[
           ElevatedButton(
-            onPressed: () => _updateOrderStatus(order['id'], 'preparing'),
+            onPressed: () => _confirmOrderPayment(order['id']),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
             child: const Text('قبول'),
           ),
